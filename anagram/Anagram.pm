@@ -8,21 +8,22 @@ sub match {
    my ($origin,@list) = @_;
    
    #print STDERR "$_\n" for @list;
-   my @output=[];
+   my @output;
    #print STDERR "$origin\n";
    foreach my $destination (@list){
        if (are_anagram($origin,$destination)){
            push(@output,$destination);
        }
    }
-   return @output;
+   return \@output;
 
 }
 
 sub are_anagram {
 	my ($in1, $in2) = @_;
 	
-	return 0 if length($in1) != length($in2); 
+	return 0 if length($in1) != length($in2);
+	return 0 if $in1 eq $in2;
 	
 	# compared as UTF-8 and case-insensitive
 	$in1 = pack('U*', sort unpack('U*', uc $in1));
