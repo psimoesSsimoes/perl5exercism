@@ -25,6 +25,16 @@ use Data::Dump 'dump';
 
 #     return join "\n" => (@proverb, $last_line)
 # }
+#
+# sub proverb {
+# 	my ($param,$qualifier) = @_;
+# 	my $story="";
+# 	for(my $i = 0; $i < scalar(@$param) -1 ; $i++ ){
+# 		$story .= "For want of $$param[$i] the $$param[$i+1] was lost.\n";
+# 	}
+# 	$story.=sprintf("And all for the want of a %s%s.", ($qualifier ? "$qualifier ":""),$$param[0]);
+# 	return $story;
+# }
 
 sub proverb {
 	
