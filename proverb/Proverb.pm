@@ -39,7 +39,6 @@ use Data::Dump 'dump';
 sub proverb {
 	
 	my ($param, $qualifier) = @_;
-
 	my $story = '';
 	
 	for(my $i = 0; $i < scalar(@$param) - 1; $i++){
