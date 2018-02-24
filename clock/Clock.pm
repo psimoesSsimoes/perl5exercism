@@ -1,94 +1,65 @@
 package Clock;
-use Data::Dumper;
-use overload '-' => "subtract",
-	     '+' => "add",
-	     '""' => "to_string",
-	     'eq'=> "equal";
+use strict;
+use warnings;
+use overload
+    "+"    => "add",
+    "-"    => "subtract",
+    "eq"   => "equals",
+    '""'   => "to_string";
 
-sub new{
-	my ($class,$arr )=@_;
-	my $self;
-	if (@$arr == 1){
-		$self = bless {hour=>"@$arr[0]",min=>"0"}=>$class;
+sub new {
+    my ($class, $clock) = @_;
+    my ($hour, $min) = @$clock;
+    $min  = $min || "0";
 
-	}else{
-		$self = bless {hour=>"@$arr[0]",min=>"@$arr[1]"}=>$class;
-	}
-	
-	$self->_numbers_as_clock;
+    my $self = bless { hour => $hour, min => $min } => $class;
+    $self->_normalize;
 
-	return $self;
-
-}
-sub equal {
-	my ($class1,$class2)=@_;
-	if ($class1->{hour} eq $class2->{hour} && $class1->{min} eq $class2->{min}){
-		return 1;
-	}
-
-		return 0;
+    return $self;
 }
 
-sub _numbers_as_clock{
-	my $self = shift;
-	$self->{hour}="0$self->{hour}" if $self->{hour} < 10;
-	$self->{min}="0$self->{min}" if $self->{min} < 10;
+sub add {
+    my ($self, $min) = @_;
+    my $clock = $self->_copy;
+    if ($min >= 60) {
+        $clock->{hour} = ($clock->{hour} + int($min / 60)) % 24;
+    }
+    $clock->{min}  = $clock->{min} + $min % 60;
+    $clock->_normalize;
+    return $clock;
+}
 
-} 
+sub subtract {
+    my ($self, $min) = @_;
+    my $clock = $self->_copy;
+    if ($min >= 60) {
+        $clock->{hour} = $clock->{hour} - (int($min / 60) + 1);
+        $clock->{hour} = 25 + $clock->{hour} if $clock->{hour} < 0;
+    }
+    $clock->{min} = abs $clock->{min} - $min % 60;
+    $clock->_normalize;
+    return $clock;
+}
 
+sub equals {
+    my ($self, $other) = @_;
+    return $self->to_string eq $other;
+}
 
 sub to_string {
     my $self = shift;
     return "$self->{hour}:$self->{min}";
 }
 
-sub subtract{
-	my ($class,$num) = @_;
-	$class->{min}-=$num;
-	return _fix_time($class->{hour},$class->{min});
+sub _copy {
+    my $self = shift;
+    return __PACKAGE__->new( [$self->{hour}, $self->{min}] );
 }
 
-
-sub add{
-	my ($self,$num) = @_;
-	print STRDERR Dumper ($self);
-
-	print STDERR "$num\n";	
-	$self{min}= $self{min}+$num;
-	print STRDERR "$self{min}";
-	print STRDERR "############atum";
-	return _fix_time($self->{hour},$self{min});
+sub _normalize {
+    my $self = shift;
+    $self->{min}  = "0$self->{min}"   if $self->{min}  < 10;
+    $self->{hour} = "0$self->{hour}"  if $self->{hour} < 10;
 }
 
-sub _mod{
-	my ($x,$y)= @_;
-	
-	print STDERR "$x:$m\n";	
-	my $mod=$x%y;
-	
-	if ($mod < 0){
-		$mod+=$y;
-	}
-	return $mod;
-}
-
-sub _fix_time{
-	my ($h,$m)= @_;
-	print STDERR "$h:$m\n";	
-	if ($m < 0 && $m==-60){
-
-	}elsif($m<0){
-		$m-=60;
-	}
-	$h+=int($m/60);
-	print STDERR "$h:$m\n";	
-	$m=_mod($m,60);
-	sleep 1;
-	$h=_mod($h,24);
-	print STRDERR $h;	
-	print STRDERR $m;	
-	return "$h:$m";
-}
-
-
-1;
+__PACKAGE__;
